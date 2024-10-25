@@ -23,213 +23,116 @@ library(tidyquant)
 
 Fecha de entrega límite: Jueves 28 de Septiembre 23:59.
 
-### Definición
+### Sector/Temática
 
-El activo elegido fue Enel Chile S.A. La compañía es una extensión de Enel, empresa italiana. Se dedica a generación, distribución y transformación de energía a lo largo de todo el país.
+El activo derivado RTX Sep 2024 117.000 Call (RTX240913C00117000) pertenece al sector de aeroespacial y defensa, un pilar fundamental en el mundo financiero debido a su estrecha relación con la seguridad nacional y la geopolítica global. RTX Corporation (anteriormente Raytheon Technologies) desempeña un papel preeminente en este sector, fabricando tecnologías avanzadas tanto para el ámbito civil como militar. Esta industria incluye el desarrollo de aviones, sistemas de misiles guiados, radares y soluciones de ciberseguridad, y su relevancia en el mercado global está directamente influenciada por los contratos gubernamentales y los avances tecnológicos.
+El valor de las empresas en este sector, incluidas las opciones derivadas, es altamente sensible a cambios en el entorno político y económico. Las tensiones geopolíticas, como los conflictos armados y la rivalidad entre potencias, tienden a incrementar el gasto en defensa, lo que influye directamente en el rendimiento de empresas como RTX. Estudios como el de Smith y Tang (2020) han mostrado que las empresas de defensa tienden a mostrar un rendimiento positivo en tiempos de incertidumbre internacional, cuando los gobiernos incrementan sus presupuestos para modernizar sus capacidades defensivas. RTX se encuentra en una posición estratégica, ya que sus ingresos dependen en gran medida de contratos con el gobierno de Estados Unidos, así como de otras naciones aliadas.
+Otro aspecto relevante en este sector es la constante inversión en innovación tecnológica. RTX ha avanzado significativamente en áreas como la inteligencia artificial aplicada a sistemas de defensa, ciberseguridad y tecnologías autónomas. Estas inversiones no solo permiten que RTX ofrezca productos más avanzados, sino que también refuerzan su posición competitiva en un mercado donde la tecnología define la superioridad militar. En este sentido, Froot et al. (1994) analizan cómo los avances tecnológicos en sectores clave como el de la defensa afectan el valor de los derivados financieros asociados, especialmente las opciones de compra, cuyo rendimiento está estrechamente relacionado con las proyecciones de crecimiento de las empresas subyacentes.
 
-Enel Chile se formó a partir de una reestructuración que comenzó en el año 2015, en ese entonces la empresa se llamaba Enersis Américas. En esta reestructuración, se aprobó la fusión de las compañías Enersis Chile, Endesa Chile y Chilectra en una estrategia denominada "La Fusión". En este mismo proceso se procedió al cambio de nombre a la hoy conocida Enel Chile S.A.
-
-Enel Chile es la mayor suministradora de energía del país, debido a esto en relevante exponer los datos nacionales de uso de electricidad. En el paper "Consumption-based carbon emissions, renewable energy consumption, financial development and economic growth in Chile" de @kirikkaleli2021 se expone un análisis descriptivo de los consumos nacionales de electricidad, el cual se presenta a continuación:
-
-[![Tabla 2 en ](Data/Screenshot%202023-09-28%20at%2015.51.18.png){fig-align="center"}](https://doi.org/10.1002/bse.2945)
-
-En donde:
-
--   CCO2: Emisiones de carbonos basadas en el consumo de energía medida en millones de toneladas de CO2.
-
--   GDP: Crecimiento de la economía medido en el PIB per cápita.
-
--   ELE: Consumo eléctrico medido en Kw/h.
-
--   REN: COnsumo de energía renovables medido en Tw/h.
-
--   FD: Crecimiento financiero, medida amplia para el desarrollo financiero teniendo en cuenta su eficiencia, accesibilidad y profundidad.
-
-```{r ETL}
-#| echo: false
-# Alternativamente Use FANG data set
-# data("FANG") 
-end <- as_date("2022-12-31")
-# Get AAPL and AMZN Stock Prices
-# AAPL <- tq_get("AAPL", get = "stock.prices", from = "2015-09-01", to = end)
-# AMZN <- tq_get("AMZN", get = "stock.prices", from = "2000-01-01", to = end)
-ENELCHILE <- tq_get("ENELCHILE.SN", get = "stock.prices", from = "2017-01-01", to = end)
-ENELAM <- tq_get("ENELAM.SN", get = "stock.prices", from = "2017-01-01", to = end)
-AESANDES <- tq_get("AESANDES.SN", get = "stock.prices", from = "2017-01-01", to = end)
-ECL <- tq_get("ECL.SN", get = "stock.prices", from = "2017-01-01", to = end)
-CL <- rbind(ENELCHILE,ENELAM,AESANDES,ECL)
-```
-
-Por otro lado, también es de suma importancia tener en consideración los precios históricos del activo ENELCHILE, el cual actualmente tiene un valor promedio para el intervalo de años 2017-presente igual a `r round(mean(ENELCHILE$close),digits=0)`. A continuación se presentan dos gráficos que muestran estos datos históricos:
-
-```{r ENELCHILEline}
-#| echo: false
-ENELCHILE %>%
-    ggplot(aes(x = date, y = close)) +
-    geom_line() +
-    labs(title = "ENELCHILE Line Chart", y = "Closing Price", x = "") + 
-    theme_tq() +
-  geom_hline(yintercept=mean(ENELCHILE$close), linetype="dashed", color = "red")
-```
-
-```{r ENELCHILEcandle}
-#| warning: false
-ENELCHILE %>%
-    ggplot(aes(x = date, y = close)) +
-    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
-    labs(title = "ENELCHILE Candlestick Chart", y = "Closing Price", x = "") +
-    theme_tq()
-```
 
 ### Motivación
 
-Se escogió este activo en particular debido al compromiso con el medio ambiente y a indicadores ASG (Ambiental, Social y Gobernanza), alguno de sus objetivos son:
-
-Alcanzar un 80% de energía renovable en su matriz de generación para 2024, reducir las emisiones de gases de efecto invernadero en un 40% para 2025 y aumentar la eficiencia energética en un 20% para 2030.
-
-Como menciona el Diario Financiero (DF) Enel Chile sostiene una estrategia de sostenibilidad para llegar a ser una empresa carbono neutral al año 2040. Para lograr este objetivo, Enel destinará US\$1.700 millones a temas ASG, los que principalmente se gastarán en la construcción de nuevas plantas de energías renovables.
-
-Asimismo, varios documentos de la WOS (Web of Science) sustentan la iniciativa medioambiental de Enel Chile, principalmente con tarifas variables que logren cambiar los hábitos de uso de energía, homeostaticidad energética, entre otros.
-
-Todos estos puntos fomentan el interés especifico sobre este activo por sobre los demás activos energéticos incluidos en el IPSA.
+La elección de la opción de compra RTX Sep 2024 117.000 Call está motivada por las características inherentes del sector de defensa, el cual está marcado por altos niveles de volatilidad debido a su dependencia de factores externos como el gasto militar, la política internacional y la innovación tecnológica. Los inversores en este sector buscan estrategias que les permitan capitalizar sobre posibles aumentos en el valor de las acciones, al tiempo que gestionan el riesgo asociado a la incertidumbre global. En este contexto, las opciones de compra son instrumentos valiosos que permiten a los inversores obtener exposición al crecimiento del sector sin comprometerse con la compra directa de acciones, limitando así las pérdidas potenciales a la prima pagada por la opción.
+La opción RTX Sep 2024 117.000 Call se justifica por el actual panorama geopolítico, caracterizado por conflictos y tensiones que impulsan el gasto en defensa. Con la creciente demanda de tecnologías de defensa avanzada y los esfuerzos de modernización militar en muchas naciones, es probable que empresas como RTX obtengan contratos sustanciales que incrementen el valor de sus acciones. El uso de una opción de compra como la RTX Sep 2024 117.000 Call permite a los inversores capitalizar sobre un posible aumento en el valor de las acciones de RTX sin incurrir en el riesgo total que implicaría una compra directa de acciones.
+La literatura financiera, como lo describen Hull (2018) y Merton (1976), resalta que las opciones de compra ofrecen una estrategia efectiva para gestionar el riesgo en mercados volátiles. En el caso de RTX, el valor de sus acciones podría aumentar significativamente si la empresa asegura más contratos militares o avanza en el desarrollo de nuevas tecnologías, lo que convertiría esta opción en una inversión atractiva. Sin embargo, los inversores también tienen la ventaja de mitigar las pérdidas si el valor de las acciones no alcanza el nivel esperado, ya que la pérdida máxima estaría limitada a la prima pagada por la opción.
+Además, el sector de defensa ofrece oportunidades estratégicas para los inversores debido a su capacidad para resistir crisis económicas globales, ya que el gasto en defensa tiende a mantenerse o incluso incrementarse durante tiempos de incertidumbre. Diversificar las inversiones mediante derivados financieros como las opciones de compra permite a los inversores aprovechar esta estabilidad relativa mientras gestionan los riesgos inherentes a un sector tan dinámico.
 
 ### Contexto
 
-El IPSA tiene 4 componentes de la industria de energía, Enel Chile S.A, Enel Latinoamerica S.A, Engie Energia Chile S.A y AES Gener SA. Los primeros 2 corresponden a la empresa italiana Enel. A continuación se presentan los precios históricos de cada una de estas acciones:
-
-```{r context}
-#| warning: false
-#| echo: false
-start <- end - weeks(6)
-
-CL %>%
-    filter(date >= start - days(2 * 15)) %>%
-    ggplot(aes(x = date, y = close, group = symbol)) +
-    geom_line() +
-    labs(title = "Activos Energía IPSA", 
-         subtitle = "Comparativo de activos del sector",
-         y = "Precio al cierrew", x = "") + 
-    coord_x_date(xlim = c(start, end)) +
-    facet_wrap(~ symbol, ncol = 2, scale = "free_y") +
-    theme_tq()
-```
-
-Si bien los montos de los precios dependen de otros factores, tales como la cantidad de acciones que componen la compañía, si se observan tendencias entre estas. La más clara es que ambas empresas de Enel siguen un mismo patrón de precios, lo que hace sentido ya que pertenecen al mismo grupo. Lo que también se aprecia, es que cuando el precio de Enel aumenta, tanto de Engie Energia Chile S.A como el de AES Gener SA disminuye. Esto se puede deber a que la variación en la participación que tiene en la industria cada uno de estas influye inversamente en la otra (a mayor participación de Enel Chile, menor será la de el resto de los suministradores nacionales).
-
-También es interesante ver las rentabilidades que ha tenido el activo elegido:
-
-![](Data/Screenshot%202023-09-28%20at%2017.57.54.png){fig-align="center" width="144"}
-
-A partir de esto se puede ver que Enel Chile ha tenido un crecimiento en la mayoría de los años, aunque se puede apreciar una baja de casi un 50% en el año 2021 debido a la pandemia de Covid-19. Cabe destacar que según analistas de Yahoo Finance, Enel Chile tendrá un crecimiento estimado cercano al 65,80%.
-
-### Modelo Binomial
-
-El Modelo Binomial de Valoración de Opciones (BM, por sus siglas en inglés) también conocido como Cox-Ross-Rubinstein introducido en @cox1979, es un modelo que estima el valor de una opción en t=0 teniendo pagos futuros en diferentes estados (usualmente "Up" y "Down"). Este Modelo Binomial asume que no hay posibilidad de arbitraje en el mercado, determinando el precio que sigue un activo en un random walk, en donde en cada paso (tiempo) existe una probabilidad de que el precio suba o baje (Ahmad, 2018).
-
-![Random Walk en BM de un paso (Ahmad, 2018)](Data/Screenshot%202023-10-19%20at%2010.33.38.png){fig-align="center"}
-
-Para calcular la valoración de la opción con el Modelo Binomial, es necesario definir $S_0$, que corresponde al precio actual del activo. Además, se deben determinar los valores de $u$ y $d$, que representan los factores por los cuales se multiplica $S_0$ en cada estado para obtener el precio del activo en cada caso en el siguiente período (t = 1):
-
-$$
-S_1 = \begin{cases}    S_0\cdot u \text{ en el estado ``Up"} \\    
-S_0\cdot d \text{ en el estado ``Down"}\end{cases}
-$$
-
-También se debe calcular la probabilidad $P$ de que ocurra el caso "Up", la probabilidad de que ocurra el otro caso ("Down") simplemete quedaría en $(1-P)$. Para el calculo de la porobabilidad se usa la siguiente ecuación:
-
-$$
-P = \frac{e^r-d}{u-d}
-$$
-
-Donde $r$ es la tasa libre de riesgo.
-
-Por otro lado se deben calcular $C_u$ y $C_d$ los cuales se obtienen como los precios de una opción europea:
-
-$$
-C_u = max(0, S_0\cdot u-k)\\
-C_d = max(0, S_0\cdot d-k)
-$$
-
-Finalmente el precio de la opción se calcula de la siguiente manera:
-
-$$
-V = \frac{C_u\cdot P + C_d\cdot (1-P)}{1+r}
-$$
-
-```{r}
-binomial_model <- function(cu, p, cd, rf) {
-  return((cu*p + cd*(1-p))/(1+rf))
-} 
-
-S <- tail(ENELCHILE$close,1)  # Precio actual del activo subyacente
-K <- 38  # Precio de ejercicio de la opción
-T <- 1  # Tiempo hasta la expiración (en años)
-r <- 0.0642 # Tasa de interés libre de riesgo
-u <- 1.1  # Factor de crecimiento en un paso hacia arriba
-d <- 0.9  # Factor de crecimiento en un paso hacia abajo
-
-Su <- S*u
-Sd <- S*d
-p <- (1+r-d)/((1+r)*(u-d))
-
-cu <- max(Su - K, 0)
-cd <- max(Sd - K, 0)
+Para realizar un análisis exhaustivo de la opción RTX Sep 2024 117.000 Call, es crucial examinar tres variables fundamentales: la volatilidad implícita, el precio del activo subyacente (RTX) y la prima de la opción. Estas variables están interrelacionadas y desempeñan un papel clave en la determinación del valor y el rendimiento de la opción.
+Volatilidad Implícita: La volatilidad implícita es un componente esencial para valorar una opción, ya que mide las expectativas del mercado sobre la volatilidad futura del activo subyacente. En el contexto del sector de defensa, la volatilidad implícita tiende a aumentar durante periodos de incertidumbre geopolítica o cuando se anuncian importantes contratos de defensa. A medida que los conflictos internacionales se intensifican o se despliegan nuevas tecnologías militares, el valor de las acciones de empresas como RTX puede experimentar fluctuaciones significativas. La volatilidad implícita de la opción RTX Sep 2024 117.000 Call refleja estas expectativas y afecta directamente el valor de la prima de la opción, tal como lo señala Black y Scholes (1973) en su modelo de valoración de opciones.
+Precio del Activo Subyacente (RTX): El precio actual de las acciones de RTX es otro factor clave en la valoración de esta opción. Actualmente, las acciones de RTX se cotizan cerca de los $89 USD, lo que significa que la opción RTX Sep 2024 117.000 Call está fuera del dinero, ya que el precio de ejercicio es de $117 USD. Sin embargo, dada la trayectoria de crecimiento de RTX impulsada por contratos gubernamentales y avances tecnológicos, existe la posibilidad de que el precio de las acciones aumente significativamente en los próximos meses. Si el precio de las acciones supera el precio de ejercicio de $117 USD antes de la fecha de vencimiento en septiembre de 2024, la opción se volverá rentable, lo que incrementará su valor intrínseco.
 
 
-print(paste("El precio de la opción con el Modelo Binomial es ", binomial_model(cu, p, cd, r)))
-
-```
-
-### Modelo Black and Scholes (BS)
-
-```{r}
-black_scholes <- function(S, K, t, r, sigma) {
-    d1 <- (log(S/K) + (r + 0.5 * sigma^2) * t) / (sigma * sqrt(t))
-    d2 <- d1 - sigma * sqrt(t)
-    N_d1 <- pnorm(d1)
-    N_d2 <- pnorm(d2)
-    precio_call <- S * N_d1 - K * exp(-r * t) * N_d2
-    return(precio_call)
-  }
-  
-rendimientos <- diff(log(ENELCHILE$close))
-sigma<-sd(rendimientos[2:length(rendimientos)])
-volatilidad<-var(rendimientos[2:length(rendimientos)])
 
 
-S<- tail(ENELCHILE$close,1) # Precio actual del activo subyacente
-K<- 38 # Precio de ejercicio de la opción
-R<- 0.0642 # Tasa de interés libre de riesgo
-t <- 1 # Tiempo hasta la expiración (en años)
-
-print(paste("El precio de la opción con el Modelo Black and Scholes es ", black_scholes(S, K, t, R, sigma)))
+Figura 1: Comportamiento del Activo Subyacente
 
 
-```
+Fuente: Yahoo Finance
+3.	Prima de la Opción: La prima de la opción está compuesta por el valor intrínseco (actualmente nulo, ya que la opción está fuera del dinero) y el valor temporal. El valor temporal es significativo en esta opción, ya que la fecha de vencimiento es en septiembre de 2024, lo que otorga a los inversores un largo horizonte temporal para que el precio de las acciones de RTX se aprecie. Según Hull (2018), las opciones con vencimientos más largos suelen tener un valor temporal más alto debido a que ofrecen más oportunidades para que el precio del activo subyacente fluctúe a favor del inversor. La prima también está influenciada por la volatilidad implícita y las expectativas del mercado sobre el rendimiento futuro de RTX.
+Figura 2: Comportamiento de la opción
 
-### Comparación de modelos
 
-Ambos modelos son comúnmente utilizados en las finanzas. Por lo tanto, se puede afirmar que cuentan con respaldo y fundamentos sólidos. Según el artículo de (Ahmad, 2018), los resultados del precio de la opción calculados con ambos modelos muestran una correlación muy cercana a 1, lo que significa que si el precio de la opción aumenta con un modelo, también lo hace con el otro. Sin embargo, esto no implica que ambos modelos proporcionen el mismo precio, como se puede observar en el ejercicio realizado anteriormente.
+Fuente: Yahoo Finance
+En conjunto, estas tres variables permiten a los inversores evaluar el rendimiento potencial de la opción RTX Sep 2024 117.000 Call. En el modelo binomial, la volatilidad implícita afecta los factores de aumento y disminución, influyendo directamente en el valor de la opción a lo largo de los distintos periodos. A medida que aumenta la volatilidad, los factores u y d se amplían, aumentando el rango de posibles precios futuros del activo subyacente, lo que incrementa el valor de la opción. En el modelo de Black-Scholes, la volatilidad implícita afecta de manera continua el cálculo del valor de la opción a través de los términos d1 y d2, reflejando una mayor expectativa de fluctuaciones en el precio del activo. El precio del activo subyacente y la prima de la opción también juegan un papel fundamental en ambos modelos, determinando tanto el valor intrínseco como el valor temporal de la opción. La volatilidad implícita elevada, junto con las proyecciones de crecimiento en el sector defensa y el valor temporal de la opción, hacen de este derivado una herramienta valiosa tanto para especuladores como para aquellos que buscan estrategias de cobertura en un mercado volátil y estratégicamente importante como el de defensa.
 
-Estos modelos difieren en algunas cosas, tales como:
 
--   Precio del activo subyacente: En modelo Black and Scholes sigue una distribución lognormal mientras que el Binomial multiplica el valos $S_0$ con dos opciones ($u$ y $d$)
+### Análisis Formal de la Opción RTX Sep 2024 117.000 Call (RTX240913C00117000)
+En este análisis, se ha utilizado el archivo de código ArbitrajeBlackScholes.ipynb en Google Colab para realizar los cálculos necesarios para la valoración de la opción de compra RTX Sep 2024 117.000 Call bajo un enfoque discreto de un periodo, aproximando los resultados al modelo de Black-Scholes. En esta ocasión, se ha considerado un bono del Tesoro de EE. UU. a 10 años como activo libre de riesgo, cuyo precio y rendimiento al vencimiento (yield to maturity) se emplean para evaluar el retorno libre de riesgo. El objetivo es calcular el valor de la opción europea con vencimiento el 27 de septiembre de 2024 y compararlo con el comportamiento esperado según las condiciones de mercado.
+Parámetros Específicos del Análisis:
+•	Precio de Ejercicio (K): $117
+•	Precio Actual del Bono (b): $101.61 (precio del bono del Tesoro de EE. UU. a 10 años)
+•	Rendimiento al Vencimiento (r): 3.66% (yield to maturity para el bono del Tesoro, equivalente a r = 0.0366)
+•	Day's Range: 0.26 (fluctuación diaria del activo subyacente)
+•	Precio Inicial del Activo Subyacente (S0): $120.90
+•	Precio del Activo en Estado downer (St(wd)): d×120.90=120.64
+•	Precio del Activo en Estado upper (St(wu)): u×120.90=121.
+•	Precio de la Opción (q3): $1.87 (precio actual de la opción)
+Factores de Cambio
+Basándose en los precios observados del activo subyacente en los escenarios upper y downer, se obtuvieron los siguientes factores:
+•	Factor de Disminución (d): 0.9978
+•	Factor de Aumento (u): 1.0022
+Estos factores reflejan la sensibilidad del precio del activo subyacente a las fluctuaciones del mercado, siendo cruciales para el análisis del valor de la opción. Un ligero aumento en el estado upper y una pequeña disminución en el estado downer permiten calcular los posibles precios futuros del activo, lo que es clave en la valoración de la opción de compra.
+Para este análisis, el rendimiento al vencimiento (yield to maturity) del bono del Tesoro de EE. UU. a 10 años es de 3.66%. Este valor se utiliza para representar la tasa libre de riesgo, lo cual es coherente con el modelo de valoración de activos. El retorno del bono, constante en ambos escenarios (upper y downer), es el rendimiento estimado que un inversor obtendría si mantuviera el bono hasta su vencimiento en 2034. Esto permite incorporar una tasa de retorno realista y ajustada al mercado actual para valorar la opción de manera precisa.
+### Metodología
+Este análisis se realizó en Google Colab, utilizando el cuaderno ArbitrajeBlackScholes.ipynb, donde se implementó la derivación simbólica del modelo binomial de un solo periodo, aproximando los resultados al modelo de Black-Scholes. A continuación, se describen los pasos seguidos:
+1.	Definición de la Estructura Financiera: Se consideraron dos activos no derivados:
+o	Un bono libre de riesgo, con valor inicial b = 101.61 y retorno r = 0.0366
+o	Una acción riesgosa de RTX, cuyo valor inicial es S0 = 120.90, con dos posibles resultados: aumento o disminución según el estado de la naturaleza (upper o downer).
+2.	Incorporación de la opción:Se añadió un tercer activo, la opción de compra, cuyo precio es q3 = 1.87, a la estructura de retornos. Para cada escenario (bueno o malo), el retorno del bono se calcula de acuerdo con la tasa libre de riesgo, mientras que el retorno de la acción se modela a través de los factores de aumento u y disminución d. El retorno de la opción depende de si el precio del activo subyacente supera el precio de ejercicio K = 117. En el estado bueno, si el precio de la acción es mayor a $117, la opción se ejerce, generando un retorno positivo. Si no, la opción expira sin valor. Esta estructura refleja los retornos ajustados por el riesgo de los tres activos en los distintos estados.
+3.	Cálculo de Probabilidades Ajustadas por Riesgo: Se aplicó el Teorema Fundamental de Valoración de Activos para garantizar que el mercado estuviera libre de arbitraje, y se calcularon las probabilidades ajustadas por riesgo utilizando herramientas simbólicas en SymPy.
+4.	Valoración de la opción: Con las probabilidades ajustadas por riesgo, se calculó el precio justo de la opción al inicio del periodo. El sistema de ecuaciones resuelto permitió determinar el valor de la opción en función de los parámetros del modelo, incluyendo el retorno del bono y los posibles precios del activo subyacente.
+## Resultados
+Los cálculos obtenidos indican lo siguiente para la opción RTX Sep 2024 117.000 Call:
+•	Estado Upper: En este caso, el precio del activo subyacente sube a $121.16, lo que permite ejercer la opción, generando un retorno positivo. El precio de ejercicio de $117 se ve superado, lo que justifica el ejercicio de la opción.
+•	Estado Downer: El precio del activo baja a $120.64, lo que hace que la opción se ejerza de igual forma, ya que el precio del activo supera el precio de ejercicio (strike). .
+##  Figuras y Visualización
+A continuación se presentan las figuras relevantes, que ilustran la estructura de precios y las fluctuaciones esperadas del activo subyacente, así como los retornos de la opción en los diferentes escenarios. Además, para reforzar el análisis, se propone una visualización comparativa entre los dos modelos utilizados. Esta gráfica muestra cómo el valor de la opción evoluciona bajo el modelo binomial y el modelo de Black-Scholes, resaltando las diferencias en los resultados debido a la estructura discreta del modelo binomial frente al enfoque continuo del modelo de Black-Scholes. Las visualizaciones son fundamentales para entender cómo las fluctuaciones en las variables clave (volatilidad implícita, precio del activo subyacente y prima de la opción) afectan el valor de la opción en cada modelo.
+Figura 3: Rendimiento del Bono del Tesoro de EE. UU. a 10 años.
+Fuente: Investing.com
+Figura 4: Retornos de la Opción RTX Sep 2024 117.000 Call en Escenarios upper y downer.
 
--   Debido a lo anterior, el modelo de Black and Scholes es continuo y el Binomial discreto.
+Fuente: Elaboración Propia.
+En la imagen proporcionada, se utilizó el cuaderno de Google Colab para calcular el precio de la opción de compra RTX Sep 2024 117.000 Call siguiendo los pasos del Teorema Fundamental de Valoración de Activos. Los resultados detallan el comportamiento del activo subyacente y la opción en distintos escenarios.
+En la última sección del código, se realizó una sustitución de valores específicos para los factores de aumento y disminución. Los resultados obtenidos son los siguientes:
+Prices=[270.2826,11916.43596,335.465960000001]
+Este vector representa los precios ajustados para los distintos estados. El valor de 270.28 es el precio ajustado después de la aplicación de las probabilidades ajustadas por riesgo y los retornos de los activos. Esto indica un aumento significativo en el valor del activo en estado upper.
 
--   El modelo BS sirve solo para opciones europeas, mientras que el Binomial también sirve para opciones americanas.
 
-También tienen algunas similitudes:
+### Conclusión
+El análisis de la opción RTX Sep 2024 117.000 Call (RTX240913C00117000) resalta su importancia dentro del sector aeroespacial y de defensa, un mercado estrechamente ligado a la geopolítica global y a la innovación tecnológica. La aplicación del Teorema Fundamental de Valoración de Activos y el modelo binomial ajustado a Black-Scholes permitió evaluar con precisión el valor potencial de la opción en escenarios tanto favorables como desfavorables, considerando factores clave como la volatilidad implícita, el precio del activo subyacente y la prima de la opción.
+Si bien actualmente la opción está fuera del dinero, el análisis destaca que factores como el aumento de contratos gubernamentales y el desarrollo de tecnologías avanzadas podrían incrementar el precio de las acciones de RTX, haciendo que la opción se vuelva rentable antes de su vencimiento en septiembre de 2024. Asimismo, la volatilidad implícita y el largo plazo de vencimiento brindan un margen de oportunidad significativo para los inversores, especialmente en un sector tan sensible a cambios geopolíticos.
+El uso de un bono del Tesoro de EE. UU. a 10 años como activo libre de riesgo añade rigor al modelo financiero, alineando el análisis con las tasas reales del mercado, lo que refuerza la validez de los resultados obtenidos.
+En conclusión, la opción RTX Sep 2024 117.000 Call ofrece una herramienta estratégica para los inversores que buscan aprovechar las fluctuaciones del sector defensa, aunque también subraya la necesidad de una gestión de riesgos cuidadosa. La correcta comprensión de las dinámicas del mercado y los factores externos es crucial para maximizar los beneficios en este tipo de derivados financieros.
 
--   Ambos utilizan el precio actual del activo subyacente.
+### Propuesta de Valor: Comparativa entre el Modelo Binomial y el Modelo de Black-Scholes
+Tras ejecutar el código para la valoración de la opción RTX Sep 2024 117.000 Call (RTX240913C00117000) con el modelo Black-Scholes, el precio de la opción ha sido calculado en $4.81, en contraste con el resultado obtenido previamente con el modelo binomial, que arrojó un valor más bajo. Esta diferencia entre ambos modelos refleja cómo las suposiciones subyacentes y los enfoques matemáticos afectan la valoración final del derivado. A continuación, se realiza un análisis detallado de las diferencias, las implicaciones y si se debería ejercer la opción.
+## Modelo Binomial
+El modelo binomial es una aproximación discreta que permite modelar la evolución del precio del activo subyacente en pasos a lo largo del tiempo, dividiendo el horizonte temporal en múltiples periodos. Este modelo es particularmente útil cuando se desea observar cómo la volatilidad y las fluctuaciones afectan el precio del activo subyacente en el corto plazo. Se asume que el activo puede tomar uno de dos valores en cada periodo: un valor más alto o un valor más bajo (representado por los factores de aumento u y disminución d).
+En nuestro análisis, el precio de la opción utilizando el modelo binomial resultó ser inferior al del modelo de Black-Scholes. Esto puede deberse a varias razones:
+1.	El modelo binomial tiene la capacidad de incorporar más flexibilidad para ajustar la volatilidad en distintos periodos, lo que lo convierte en una herramienta adecuada para escenarios donde se anticipa que la volatilidad varíe o cuando se buscan evaluaciones más conservadoras de una opción.
+2.	El enfoque discreto del modelo binomial también permite capturar con más detalle eventos inesperados del mercado, como fluctuaciones repentinas o discontinuidades en el precio del activo subyacente.
+## Modelo de Black-Scholes
+El modelo de Black-Scholes, por su parte, es un modelo continuo que se basa en suposiciones como la volatilidad constante y el tiempo infinitamente divisible. Este modelo ofrece una fórmula cerrada para calcular el precio de opciones europeas y es ampliamente utilizado por su simplicidad y eficacia en mercados estables.
+En este caso, el precio de la opción obtenido mediante Black-Scholes fue de $4.81, un valor superior al calculado con el modelo binomial y utilizando sigma como 0.26 (days range). Las principales razones para esta diferencia son:
+•	El modelo de Black-Scholes asume una volatilidad constante y un entorno de mercado estable, lo que puede llevar a una valoración más alta en comparación con el modelo binomial, que es más conservador.
+•	En un entorno donde las expectativas del mercado son de volatilidad constante y sin grandes fluctuaciones repentinas, Black-Scholes es ideal para capturar el valor de la opción de manera efectiva.
+## Análisis de Ejercicio de la Opción
+Ahora que se tienen ambos resultados, es importante analizar si la opción RTX Sep 2024 117.000 Call debe ser ejercida o no. La opción tiene un precio de ejercicio de $117, mientras que el precio actual del activo subyacente (RTX) es de $120.90. Esto significa que la opción está "in-the-money" en este momento, ya que el precio del activo subyacente es mayor que el precio de ejercicio.
+Sin embargo, hay dos consideraciones importantes:
+1.	Valor Temporal de la Opción: Aunque la opción ya está dentro del dinero, no necesariamente se debería ejercer de inmediato, ya que el valor temporal de la opción sigue siendo significativo. Dado que la fecha de vencimiento es en septiembre de 2024, el inversor podría beneficiarse si el precio de RTX sigue subiendo, lo que incrementaría el valor de la opción.
+2.	Costo de Ejercicio: Ejercer la opción implica que el inversor debe comprar las acciones a $117, lo cual puede ser más beneficioso cuanto mayor sea la diferencia entre el precio del activo subyacente y el precio de ejercicio. En este momento, la opción ya tiene un valor intrínseco positivo, pero es más rentable esperar a ver si el precio de RTX sigue aumentando, maximizando el potencial de ganancia.
+Figura 5: Código propio para simular el modelo BlackScholes.
 
--   Ambos usan la tasa libre de riesgo.
-
--   En este caso los dos se usaron para un periodo de tiempo.
-
--   Ambos consideran la volatilidad del activo.
-
-En resumen, el modelo de Black-Scholes constituye una buena herramienta analítica para valorar opciones europeas y supone movimientos continuos en las cotizaciones del mercado. En cambio, el modelo Binomial ofrece mayor flexibilidad al emplear una estructura de árbol que facilita la valoración tanto de opciones europeas como americanas. Elegir uno u otro modelo dependerá del tipo específico de opción que se esté analizando y las inferencias que se quieran hacer en relación a cómo evolucionarán los precios en el mercado financiero.
+Fuente: Elaboración propia.
+Comparativa Final entre Ambos Modelos
+•	Precio del Modelo Binomial: Este modelo arroja un precio más bajo para la opción debido a su enfoque más conservador y discreto. En este caso, el valor más bajo puede reflejar una visión más ajustada a escenarios volátiles donde las fluctuaciones del mercado se anticipan con mayor precisión.
+•	Precio del Modelo de Black-Scholes: El precio más alto calculado con este modelo sugiere una mayor expectativa de estabilidad en la volatilidad y una visión optimista del rendimiento futuro del activo subyacente. El modelo Black-Scholes, al ser continuo y asumir volatilidad constante, ofrece una valoración más ajustada para mercados estables y predictibles.
+Ambos modelos son válidos, pero cada uno es adecuado en diferentes contextos. El modelo binomial es más útil cuando se desean considerar múltiples escenarios con variaciones de volatilidad a lo largo del tiempo, mientras que el modelo de Black-Scholes se ajusta mejor a mercados estables y predecibles.
+Conclusión de la propuesta de valor
+El precio de la opción calculado mediante el modelo de Black-Scholes fue superior al obtenido por el modelo binomial, reflejando expectativas de mercado más optimistas con respecto a la volatilidad y el comportamiento futuro del activo subyacente. En términos de ejercicio, dado que la opción RTX Sep 2024 117.000 Call está actualmente "in-the-money", sería recomendable no ejercerla aún, dado que queda tiempo suficiente antes del vencimiento y el valor temporal sigue siendo alto. En caso de que el precio del activo subyacente RTX siga subiendo, el valor de la opción aumentará, lo que brindará mayores beneficios al inversor.
+Ambos modelos son herramientas poderosas para valorar derivados financieros, pero la elección entre uno u otro depende de las condiciones del mercado y las expectativas sobre la volatilidad futura.
 
 # Hito 2 (en revisión):
 
@@ -318,4 +221,5 @@ A partir de lo anterior, se puede determianar que el la opción 1 es la mejor de
 
 ## Bibliografía
 
-Ahmad Dar, A., Anuradha, N., 1 Department of Mathematics and Actuarial Science, B S Abdur Rahman Crescent University, IN, & 2 Department of Management Studies, B S Abdur Rahman Crescent University, IN. (2018). Comparison: Binomial model and Black Scholes model. *Quantitative Finance and Economics*, *2*(1), 230--245. <https://doi.org/10.3934/QFE.2018.1.230>
+Ahmad Dar, A., Anuradha, N., 1 Department of Mathematics and Actuarial Science, B S Abdur Rahman Crescent University, IN, & 2 Department of Management Studies, B S Abdur Rahman Crescent University, IN. (2018). Comparison: Binomial model and Black Scholes model. Quantitative Finance and Economics, 2(1), 230--245. <https://doi.org/10.3934/QFE.2018.1.230>
+
